@@ -995,6 +995,8 @@ TODOS
 					// FIXME: there must a better way to do this
 					layerlist.append('<tr><td style="color:white">_</td><td/></tr>');
 				}
+				document.getElementById("currentlayerdisplay").textContent = "Current Layer: " + currentLayerName;
+				// currentLayerLabel.innerHTML 
 			};
 
 			var showSourceEditor = function(e, forSaving) {
