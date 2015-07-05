@@ -299,6 +299,19 @@ svgedit.draw.Drawing.prototype.getCurrentLayer = function() {
 	return this.current_layer;
 };
 
+
+/**
+ * @returns {int} index of currentLayer.
+ */
+svgedit.draw.Drawing.prototype.getCurrentLayerIndex = function() {
+	var i;
+	for (i = 0; i < this.getNumLayers(); i++) {
+		if(this.all_layers[i][0] === this.getCurrentLayerName()) {return i;}
+	}
+	return -1;
+};
+
+
 /**
  * Returns the name of the currently selected layer. If an error occurs, an empty string 
  * is returned.
@@ -353,6 +366,8 @@ svgedit.draw.Drawing.prototype.deleteCurrentLayer = function() {
 	}
 	return null;
 };
+
+
 
 /**
  * Updates layer system and sets the current layer to the

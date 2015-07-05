@@ -654,6 +654,8 @@ TODOS
 
 					'#tool_undo': 'undo',
 					'#tool_redo': 'redo',
+					'#click_next_layer_visible' :'next_layer_visible',
+					'#click_prev_layer_visible' :'prev_layer_visible',
 
 					'#tool_select': 'select',
 					'#tool_fhpath': 'pencil',
@@ -1736,6 +1738,7 @@ TODOS
 				// update history buttons
 				$('#tool_undo').toggleClass('disabled', undoMgr.getUndoStackSize() === 0);
 				$('#tool_redo').toggleClass('disabled', undoMgr.getRedoStackSize() === 0);
+
 
 				svgCanvas.addedNew = false;
 
@@ -3651,6 +3654,47 @@ TODOS
 				}
 			};
 
+			var click_next_layer_visible = function(){
+				/* to do */
+				// /* starts with top layer*/
+				/* check if your editing next layer -> if not make it editable */
+				var total = svgCanvas.getCurrentDrawing().getNumLayers();
+				var current_layer = svgCanvas.getCurrentDrawing().getCurrentLayer();
+			    var curIndex = svgCanvas.getCurrentDrawing().getCurrentLayerIndex(current_layer);
+				if (curIndex+1 < total){
+					/*turn next layer visible */
+					var current_layer_name = svgCanvas.getCurrentDrawing().getCurrentLayerName();
+					var next_layer_name = svgCanvas.getCurrentDrawing().getLayerName(curIndex+1);
+					svgCanvas.setLayerVisibility(next_layer_name,true);
+					svgCanvas.setCurrentLayer(next_layer_name);
+					populateLayers();
+
+
+				}
+			};
+
+			var click_prev_layer_visible = function(){
+				/*to do*/
+				// var total = svgCanvas.getCurrentDrawing().getNumLayers();
+				// /* starts with top layer*/
+				/* check if your editing next layer -> if not make it editable */
+				var total = svgCanvas.getCurrentDrawing().getNumLayers();
+			    var current_layer = svgCanvas.getCurrentDrawing().getCurrentLayer();
+			    var curIndex = svgCanvas.getCurrentDrawing().getCurrentLayerIndex(current_layer);
+				if (curIndex-1 >= 0){
+					/*turn current layer invisible */
+					var current_layer_name = svgCanvas.getCurrentDrawing().getCurrentLayerName();
+					svgCanvas.setLayerVisibility(current_layer_name,false);
+					/* make next layer current Layer */
+					var next_layer_name = svgCanvas.getCurrentDrawing().getLayerName(curIndex-1);
+					svgCanvas.setCurrentLayer(next_layer_name);
+					populateLayers();
+				}
+
+
+			};
+
+
 			var clickGroup = function() {
 				// group
 				if (multiselected) {
@@ -3952,7 +3996,7 @@ TODOS
 					$(this).removeClass(cur_class);
 				});
 
-				$('#tool_undo, #tool_redo').mousedown(function() {
+				$('#tool_undo, #tool_redo, #tool_next_layer_visible,#tool_prev_layer_visible').mousedown(function() {
 					if (!$(this).hasClass('disabled')) {$(this).addClass(cur_class);}
 				}).bind('mousedown mouseout',function() {
 					$(this).removeClass(cur_class);}
@@ -4497,6 +4541,8 @@ TODOS
 					{sel: '#tool_make_link,#tool_make_link_multi', fn: makeHyperlink, evt: 'click'},
 					{sel: '#tool_undo', fn: clickUndo, evt: 'click', key: ['Z', true]},
 					{sel: '#tool_redo', fn: clickRedo, evt: 'click', key: ['Y', true]},
+					{sel: '#tool_next_layer_visible', fn: click_next_layer_visible, evt: 'click'},
+					{sel: '#tool_prev_layer_visible', fn: click_prev_layer_visible, evt: 'click'},
 					{sel: '#tool_clone,#tool_clone_multi', fn: clickClone, evt: 'click', key: ['D', true]},
 					{sel: '#tool_group_elements', fn: clickGroup, evt: 'click', key: ['G', true]},
 					{sel: '#tool_ungroup', fn: clickGroup, evt: 'click'},
