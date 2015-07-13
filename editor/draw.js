@@ -34,10 +34,12 @@ var randomize_ids = RandomizeModes.LET_DOCUMENT_DECIDE;
  * This class encapsulates the concept of a layer in the drawing
  * @param {String} name - Layer name
  * @param {SVGGElement} child - Layer SVG group.
+ * @param {String} text - Layer TextEditor Content
  */
 svgedit.draw.Layer = function(name, group) {
 	this.name_ = name;
 	this.group_ = group;
+	this.text = "";
 };
 
 /**
@@ -342,6 +344,7 @@ svgedit.draw.Drawing.prototype.setCurrentLayer = function(name) {
 				this.current_layer.setAttribute("style", "pointer-events:none");
 				this.current_layer = this.all_layers[i][1];
 				this.current_layer.setAttribute("style", "pointer-events:all");
+				this.setLayerVisibility(this.getCurrentLayerName(),true);
 			}
 			return true;
 		}

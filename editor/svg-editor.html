@@ -47,6 +47,8 @@
   <script src="svg-editor.js"></script>
   <script src="locale/locale.js"></script>
   <script src="contextmenu.js"></script>
+  <!--scripts for textEditor-markdown -->
+  <script src="markdown.js"></script>
 <!--{endif}-->
 
 <!-- If you do not wish to add extensions by URL, you can load them
@@ -84,13 +86,14 @@ by creating the following file and adding by calls to svgEditor.setConfig -->
 <div id="workarea">
 	<style id="styleoverrides" type="text/css" media="screen" scoped="scoped"></style>
 	<div id="svgcanvas" style="position:relative">
-
 	</div>
 </div>
 
-<div id="currentlayerdisplay" style="position:relative">
-	<h1>testing testing</h1>
-</div>
+<div id="currentlayerdisplay"> </div>
+
+<div id="texteditorpreview"> Preview box</div>
+
+<textarea id="texteditor" oninput="this.updateTextEditor.updateEditor()" >Write something here </textarea>
 
 
 <div id="sidepanels">

@@ -172,20 +172,52 @@ select {
 	text-align: center;
 }
 
-/*The label nexxt to work area showing the current layer name*/
+/*The label next to work area showing the current layer name*/
 #currentlayerdisplay{
 	display: inline-block; 
 	position:relative;
-	height: auto;
-	width:100px;
+	width: 100px;
 	top: 100px;
 	left: 100px;
-/*	background-color: #FFF;*/
 	border: : 1px solid #808080;
-	overflow: auto;
 	text-align: center;
 /*	font-size: 5px;*/
 }
+
+#texteditorpreview{
+	display: inline-block;
+	position:absolute;
+	width: 200px;
+	height: 75px;
+	bottom: 132px;
+	left: 100px;
+	text-align: left;
+	border: : 1px solid #808080;
+	background-color: #808080;
+	box-shadow: 0px 2px 7px #292929;
+	border-radius: 10px;
+}
+
+
+#texteditor{
+	display: inline-block;
+	position:absolute;
+	width: 200px;
+	height: 75px;
+	bottom: 50px;
+	left: 100px;
+	text-align: left;
+	box-shadow: 0px 2px 7px #292929;
+	border-radius: 10px;
+/* vendor-prefix for specific browsers */
+/* 
+    -moz-box-shadow: 0px 2px 7px #292929;
+    -webkit-box-shadow: 0px 2px 7px #292929;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+*/
+}
+
 
 #sidepanels {
 	display: inline-block;

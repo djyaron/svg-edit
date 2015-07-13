@@ -17,6 +17,7 @@
 // 1) units.js
 // 2) browser.js
 // 3) svgcanvas.js
+// 4) markdown.js
 
 /*
 TODOS
@@ -929,6 +930,7 @@ TODOS
 			// This function highlights the layer passed in (by fading out the other layers)
 			// if no layer is passed in, this function restores the other layers
 			var toggleHighlightLayer = function(layerNameToHighlight) {
+				updateCurrentLayerDisplay();
 				var i, curNames = [], numLayers = svgCanvas.getCurrentDrawing().getNumLayers();
 				for (i = 0; i < numLayers; i++) {
 					curNames[i] = svgCanvas.getCurrentDrawing().getLayerName(i);
@@ -997,8 +999,8 @@ TODOS
 					// FIXME: there must a better way to do this
 					layerlist.append('<tr><td style="color:white">_</td><td/></tr>');
 				}
-				document.getElementById("currentlayerdisplay").textContent = "Current Layer: " + currentLayerName;
-				// currentLayerLabel.innerHTML 
+				updateCurrentLayerDisplay();
+				
 			};
 
 			var showSourceEditor = function(e, forSaving) {
@@ -1771,6 +1773,24 @@ TODOS
 //				}
 				$('title:first').text(newTitle);
 			};
+
+
+			var updateCurrentLayerDisplay = function() {
+				var currentLayerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
+				document.getElementById("currentlayerdisplay").textContent = "Current Layer: " + currentLayerName;
+				document.getElementById("texteditor").textContent = "TextBox";
+			}
+
+			var updateTextEditor = function(input, preview) {
+				this.updateEditor = function () {
+					preview.innerHTML = markdown.toHTML(input.value);
+					this.getCurrentLayer().text = input.value;
+				};
+				input.updateTextEditor = this;
+				this.updateEditor();
+			}
+			var getId = function (id) { return document.getElementById(id); };
+			var updateTextEditor = new updateTextEditor(getId("texteditor"),getId("texteditorpreview"));
 
 			// called when we've selected a different element
 			var selectedChanged = function(win, elems) {
