@@ -1806,7 +1806,7 @@ TODOS
 				var layerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
 				// $('#texteditor').val(layerText);
 				$('#texteditorpreview').text(layerText);
-				$('#texteditor').val(layerName);
+				$('#texteditor').val(layerText);
 				// $('#texteditorpreview').text("");
 
 			}
