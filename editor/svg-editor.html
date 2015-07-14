@@ -91,9 +91,10 @@ by creating the following file and adding by calls to svgEditor.setConfig -->
 
 <div id="currentlayerdisplay"> </div>
 
-<div id="texteditorpreview"> Preview box</div>
+<div id="texteditorpreview"></div>
 
-<textarea id="texteditor" oninput="this.updateTextEditor.updateEditor()" >Write something here </textarea>
+<!--this displays in both texteditorPreview and textEditor...however texteditor is initally set = layer.text -->
+<textarea id="texteditor" oninput="this.updateTextEditor.updateEditor()"></textarea>
 
 
 <div id="sidepanels">

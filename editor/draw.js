@@ -36,10 +36,10 @@ var randomize_ids = RandomizeModes.LET_DOCUMENT_DECIDE;
  * @param {SVGGElement} child - Layer SVG group.
  * @param {String} text - Layer TextEditor Content
  */
-svgedit.draw.Layer = function(name, group) {
+svgedit.draw.Layer = function(name, group, text) {
 	this.name_ = name;
 	this.group_ = group;
-	this.text = "";
+	this.text_ = text;
 };
 
 /**
@@ -55,6 +55,13 @@ svgedit.draw.Layer.prototype.getName = function() {
 svgedit.draw.Layer.prototype.getGroup = function() {
 	return this.group_;
 };
+/**
+ * @returns {SVGGElement} The layer's associated text
+ */
+svgedit.draw.Layer.prototype.getText = function() {
+	return this.text_;
+};
+
 
 
 /**
@@ -141,6 +148,77 @@ svgedit.draw.Drawing = function(svgElem, opt_idPrefix) {
 		this.setNonce(Math.floor(Math.random() * 100001));
 	}
 };
+
+/**
+ * Updates layer system and sets the current layer to the
+ * top-most layer (last <g> child of this drawing).
+*/
+svgedit.draw.Drawing.prototype.identifyLayers = function() {
+	console.log("identifyLayers");
+	this.all_layers = [];
+	var numchildren = this.svgElem_.childNodes.length;
+	// loop through all children of SVG element
+	var orphans = [], layernames = [];
+	var a_layer = null;
+	var childgroups = false;
+	var i;
+	for (i = 0; i < numchildren; ++i) {
+		var child = this.svgElem_.childNodes.item(i);
+		// for each g, find its layer name
+		if (child && child.nodeType == 1) {
+			if (child.tagName == "g") {
+				childgroups = true;
+				var name = $("title", child).text();
+				var text = "";
+				// Hack for Opera 10.60
+				if(!name && svgedit.browser.isOpera() && child.querySelectorAll) {
+					name = $(child.querySelectorAll('title')).text();
+				}
+
+				// store layer and name in global variable
+				if (name) {
+					layernames.push(name);
+					this.all_layers.push( [name, child, text] );
+					a_layer = child;
+					svgedit.utilities.walkTree(child, function(e){e.setAttribute("style", "pointer-events:inherit");});
+					a_layer.setAttribute("style", "pointer-events:none");
+				}
+				// if group did not have a name, it is an orphan
+				else {
+					orphans.push(child);
+				}
+			}
+			// if child has is "visible" (i.e. not a <title> or <defs> element), then it is an orphan
+			else if(~visElems.indexOf(child.nodeName)) {
+				var bb = svgedit.utilities.getBBox(child);
+				orphans.push(child);
+			}
+		}
+	}
+	
+	// create a new layer and add all the orphans to it
+	var svgdoc = this.svgElem_.ownerDocument;
+	if (orphans.length > 0 || !childgroups) {
+		i = 1;
+		// TODO(codedread): What about internationalization of "Layer"?
+		while (layernames.indexOf(("Layer " + i)) >= 0) { i++; }
+		var newname = "Layer " + i;
+		a_layer = svgdoc.createElementNS(NS.SVG, "g");
+		var layer_title = svgdoc.createElementNS(NS.SVG, "title");
+		layer_title.textContent = newname;
+		a_layer.appendChild(layer_title);
+		var j;
+		for (j = 0; j < orphans.length; ++j) {
+			a_layer.appendChild(orphans[j]);
+		}
+		this.svgElem_.appendChild(a_layer);
+		this.all_layers.push( [newname, a_layer] );
+	}
+	svgedit.utilities.walkTree(a_layer, function(e){e.setAttribute("style", "pointer-events:inherit");});
+	this.current_layer = a_layer;
+	this.current_layer.setAttribute("style", "pointer-events:all");
+};
+
 
 /**
  * @param {string} id Element ID to retrieve
@@ -294,6 +372,7 @@ svgedit.draw.Drawing.prototype.getLayerName = function (i) {
 	return '';
 };
 
+
 /**
  * @returns {SVGGElement} The SVGGElement representing the current layer.
  */
@@ -330,6 +409,25 @@ svgedit.draw.Drawing.prototype.getCurrentLayerName = function () {
 };
 
 /**
+ * Returns the text of the current layer
+*/
+svgedit.draw.Drawing.prototype.getCurrentLayerText = function () {
+	var index = this.getCurrentLayerIndex();
+	return this.all_layers[index][2];
+};
+
+/**
+ * Returns the text of the ith layer. If the index is out of range, an empty string is returned.
+ * @param {integer} i - The zero-based index of the layer you are querying.
+ * @returns {string} The text of the ith layer (or the empty string if none found)
+*/
+svgedit.draw.Drawing.prototype.getLayerText = function (i) {
+	return this.all_layers[i][2];
+};
+
+
+
+/**
  * Sets the current layer. If the name is not a valid layer name, then this
  * function returns false. Otherwise it returns true. This is not an
  * undo-able action.
@@ -353,6 +451,20 @@ svgedit.draw.Drawing.prototype.setCurrentLayer = function(name) {
 };
 
 
+svgedit.draw.Drawing.prototype.setCurrentLayerText = function(newText){
+	var index = this.getCurrentLayerIndex();
+	this.all_layers[index][2] = newText;
+}
+
+svgedit.draw.Drawing.prototype.printAllLayersText = function(){
+	var i;
+	for (i = 0; i < this.getNumLayers(); ++i) {
+		var layerContent = this.all_layers[i][2];
+		console.log("layer "+ (i+1) + " content : " + layerContent)
+	}
+}
+
+
 /**
  * Deletes the current layer from the drawing and then clears the selection.
  * This function then calls the 'changed' handler.  This is an undoable action.
@@ -373,75 +485,6 @@ svgedit.draw.Drawing.prototype.deleteCurrentLayer = function() {
 
 
 /**
- * Updates layer system and sets the current layer to the
- * top-most layer (last <g> child of this drawing).
-*/
-svgedit.draw.Drawing.prototype.identifyLayers = function() {
-	this.all_layers = [];
-	var numchildren = this.svgElem_.childNodes.length;
-	// loop through all children of SVG element
-	var orphans = [], layernames = [];
-	var a_layer = null;
-	var childgroups = false;
-	var i;
-	for (i = 0; i < numchildren; ++i) {
-		var child = this.svgElem_.childNodes.item(i);
-		// for each g, find its layer name
-		if (child && child.nodeType == 1) {
-			if (child.tagName == "g") {
-				childgroups = true;
-				var name = $("title", child).text();
-
-				// Hack for Opera 10.60
-				if(!name && svgedit.browser.isOpera() && child.querySelectorAll) {
-					name = $(child.querySelectorAll('title')).text();
-				}
-
-				// store layer and name in global variable
-				if (name) {
-					layernames.push(name);
-					this.all_layers.push( [name, child] );
-					a_layer = child;
-					svgedit.utilities.walkTree(child, function(e){e.setAttribute("style", "pointer-events:inherit");});
-					a_layer.setAttribute("style", "pointer-events:none");
-				}
-				// if group did not have a name, it is an orphan
-				else {
-					orphans.push(child);
-				}
-			}
-			// if child has is "visible" (i.e. not a <title> or <defs> element), then it is an orphan
-			else if(~visElems.indexOf(child.nodeName)) {
-				var bb = svgedit.utilities.getBBox(child);
-				orphans.push(child);
-			}
-		}
-	}
-	
-	// create a new layer and add all the orphans to it
-	var svgdoc = this.svgElem_.ownerDocument;
-	if (orphans.length > 0 || !childgroups) {
-		i = 1;
-		// TODO(codedread): What about internationalization of "Layer"?
-		while (layernames.indexOf(("Layer " + i)) >= 0) { i++; }
-		var newname = "Layer " + i;
-		a_layer = svgdoc.createElementNS(NS.SVG, "g");
-		var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-		layer_title.textContent = newname;
-		a_layer.appendChild(layer_title);
-		var j;
-		for (j = 0; j < orphans.length; ++j) {
-			a_layer.appendChild(orphans[j]);
-		}
-		this.svgElem_.appendChild(a_layer);
-		this.all_layers.push( [newname, a_layer] );
-	}
-	svgedit.utilities.walkTree(a_layer, function(e){e.setAttribute("style", "pointer-events:inherit");});
-	this.current_layer = a_layer;
-	this.current_layer.setAttribute("style", "pointer-events:all");
-};
-
-/**
  * Creates a new top-level layer in the drawing with the given name and 
  * sets the current layer to it.
  * @param {string} name - The given name
@@ -449,11 +492,16 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
  * also the current layer of this drawing.
 */
 svgedit.draw.Drawing.prototype.createLayer = function(name) {
+	console.log("create layer");
+	// console.log("current layer text = " + this.getCurrentLayerText());
+	console.log("length of all layers = " + this.all_layers.length);
 	var svgdoc = this.svgElem_.ownerDocument;
 	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
 	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
+	// var layer_text = svgdoc.createElementNS(NS.SVG, "innerHTML");
 	layer_title.textContent = name;
 	new_layer.appendChild(layer_title);
+	// new_layer.appendChild(layer_text);
 	this.svgElem_.appendChild(new_layer);
 	this.identifyLayers();
 	return new_layer;

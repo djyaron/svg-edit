@@ -974,10 +974,12 @@ TODOS
 				// handle selection of layer
 				$('#layerlist td.layername')
 					.mouseup(function(evt) {
+						layerWillChange();
 						$('#layerlist tr.layer').removeClass('layersel');
 						$(this.parentNode).addClass('layersel');
 						svgCanvas.setCurrentLayer(this.textContent);
 						evt.preventDefault();
+						layerHasChanged();
 					})
 					.mouseover(function() {
 						toggleHighlightLayer(this.textContent);
@@ -999,7 +1001,9 @@ TODOS
 					// FIXME: there must a better way to do this
 					layerlist.append('<tr><td style="color:white">_</td><td/></tr>');
 				}
+				/*updates current layer name display */
 				updateCurrentLayerDisplay();
+				
 				
 			};
 
@@ -1778,20 +1782,47 @@ TODOS
 			var updateCurrentLayerDisplay = function() {
 				var currentLayerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
 				document.getElementById("currentlayerdisplay").textContent = "Current Layer: " + currentLayerName;
-				document.getElementById("texteditor").textContent = "TextBox";
 			}
 
+			var editorExitsLayer = function() {
+				/* stores all the textEditorPreview into layer's text*/
+				var currentDrawing = svgCanvas.getCurrentDrawing();
+				var existingText = $('#texteditor').val();
+				console.log("EXITING LAYER - exiting layer : " + currentDrawing.getCurrentLayerName() + 
+					" saving texteditor content = " + existingText);
+				svgCanvas.getCurrentDrawing().setCurrentLayerText(existingText);
+				currentDrawing.printAllLayersText();
+			}
+
+
+			var editorEntersLayer = function(){
+				/* erases contents of textEditor and textEditorPreview*/
+				$('#texteditor').val('');
+				$('#texteditorpreview').val('');
+				/*loads existing layer's text */
+				var layerText = svgCanvas.getCurrentDrawing().getCurrentLayerText();
+				console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
+
+				var layerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
+				// $('#texteditor').val(layerText);
+				$('#texteditorpreview').text(layerText);
+				$('#texteditor').val(layerName);
+				// $('#texteditorpreview').text("");
+
+			}
 			var updateTextEditor = function(input, preview) {
 				this.updateEditor = function () {
 					preview.innerHTML = markdown.toHTML(input.value);
-					this.getCurrentLayer().text = input.value;
 				};
 				input.updateTextEditor = this;
 				this.updateEditor();
 			}
-			var getId = function (id) { return document.getElementById(id); };
-			var updateTextEditor = new updateTextEditor(getId("texteditor"),getId("texteditorpreview"));
+			var getID = function (id) { return document.getElementById(id); };
+			updateTextEditor(getID("texteditor"), getID("texteditorpreview"));
 
+
+
+			/*runs updateTextEditor */
 			// called when we've selected a different element
 			var selectedChanged = function(win, elems) {
 				var mode = svgCanvas.getMode();
@@ -3678,6 +3709,7 @@ TODOS
 				/* to do */
 				// /* starts with top layer*/
 				/* check if your editing next layer -> if not make it editable */
+				layerWillChange();
 				var total = svgCanvas.getCurrentDrawing().getNumLayers();
 				var current_layer = svgCanvas.getCurrentDrawing().getCurrentLayer();
 			    var curIndex = svgCanvas.getCurrentDrawing().getCurrentLayerIndex(current_layer);
@@ -3688,9 +3720,8 @@ TODOS
 					svgCanvas.setLayerVisibility(next_layer_name,true);
 					svgCanvas.setCurrentLayer(next_layer_name);
 					populateLayers();
-
-
 				}
+				layerHasChanged();
 			};
 
 			var click_prev_layer_visible = function(){
@@ -3698,6 +3729,7 @@ TODOS
 				// var total = svgCanvas.getCurrentDrawing().getNumLayers();
 				// /* starts with top layer*/
 				/* check if your editing next layer -> if not make it editable */
+				layerWillChange();
 				var total = svgCanvas.getCurrentDrawing().getNumLayers();
 			    var current_layer = svgCanvas.getCurrentDrawing().getCurrentLayer();
 			    var curIndex = svgCanvas.getCurrentDrawing().getCurrentLayerIndex(current_layer);
@@ -3710,6 +3742,7 @@ TODOS
 					svgCanvas.setCurrentLayer(next_layer_name);
 					populateLayers();
 				}
+				layerHasChanged();
 
 
 			};
@@ -4288,14 +4321,17 @@ TODOS
 						$.alert(uiStrings.notification.dupeLayerName);
 						return;
 					}
+					layerWillChange();
 					svgCanvas.createLayer(newName);
 					updateContextPanel();
 					populateLayers();
+					layerHasChanged();
 				});
 			});
 
 			function deleteLayer() {
 				if (svgCanvas.deleteCurrentLayer()) {
+					layerWillChange();
 					updateContextPanel();
 					populateLayers();
 					// This matches what SvgCanvas does
@@ -4303,6 +4339,7 @@ TODOS
 					// layer is selected from the canvas and then select that one in the UI)
 					$('#layerlist tr.layer').removeClass('layersel');
 					$('#layerlist tr.layer:first').addClass('layersel');
+					layerHasChanged();
 				}
 			}
 
@@ -4338,6 +4375,16 @@ TODOS
 					svgCanvas.setCurrentLayerPosition(total-curIndex-1);
 					populateLayers();
 				}
+			}
+
+			/* called whenever layer is changed*/
+			function layerHasChanged(){
+				editorEntersLayer(); 
+			}
+
+			/*called right before layer is changed */
+			function layerWillChange(){
+				editorExitsLayer();
 			}
 
 			$('#layer_delete').click(deleteLayer);
