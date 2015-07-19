@@ -154,8 +154,11 @@ svgedit.draw.Drawing = function(svgElem, opt_idPrefix) {
  * top-most layer (last <g> child of this drawing).
 */
 svgedit.draw.Drawing.prototype.identifyLayers = function() {
-	console.log("identifyLayers");
+	var old_all_layers = this.all_layers;
 	this.all_layers = [];
+	// if (old_all_layers.length != 0) {
+	// 	console.log("old_all_layers name = " + old_all_layers[old_all_layers.length-1][0]);
+	// }
 	var numchildren = this.svgElem_.childNodes.length;
 	// loop through all children of SVG element
 	var orphans = [], layernames = [];
@@ -169,7 +172,6 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 			if (child.tagName == "g") {
 				childgroups = true;
 				var name = $("title", child).text();
-				var text = "";
 				// Hack for Opera 10.60
 				if(!name && svgedit.browser.isOpera() && child.querySelectorAll) {
 					name = $(child.querySelectorAll('title')).text();
@@ -178,10 +180,17 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 				// store layer and name in global variable
 				if (name) {
 					layernames.push(name);
-					this.all_layers.push( [name, child, text] );
+					this.all_layers.push( [name, child]);
 					a_layer = child;
 					svgedit.utilities.walkTree(child, function(e){e.setAttribute("style", "pointer-events:inherit");});
 					a_layer.setAttribute("style", "pointer-events:none");
+					identifyLayersSetText(i,this.all_layers,old_all_layers);
+					/*set the layer text of previous layers */
+					// if ((i -2) >= 0){ //offset by 2
+					// 	var textIndex = i-2;
+					// 	this.all_layers[textIndex][2]= old_all_layers[textIndex][2];
+					// 	console.log("is this even running...this.all_layers[i].length = " + this.all_layers[textIndex].length);
+					// }
 				}
 				// if group did not have a name, it is an orphan
 				else {
@@ -219,6 +228,18 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 	this.current_layer.setAttribute("style", "pointer-events:all");
 };
 
+/**
+ * called by identifyLayers 
+ * during creation of new layer, sets the layer text of previous layers
+ * 
+ */
+var identifyLayersSetText = function(index,all_layers,old_all_layers){
+	/*set the layer text of previous layers */
+	if ((index -2) >= 0){ //numChild nodes length offset by 2 to all_layers length
+		var textIndex = index-2;
+		all_layers[textIndex][2]= old_all_layers[textIndex][2];
+	}
+}
 
 /**
  * @param {string} id Element ID to retrieve
@@ -454,6 +475,12 @@ svgedit.draw.Drawing.prototype.setCurrentLayer = function(name) {
 svgedit.draw.Drawing.prototype.setCurrentLayerText = function(newText){
 	var index = this.getCurrentLayerIndex();
 	this.all_layers[index][2] = newText;
+	//set child's inner text
+}
+
+svgedit.draw.Drawing.prototype.setLayerText = function(i,newtext){
+	this.all_layers[i][2] = newText;
+	//set child's inner text
 }
 
 svgedit.draw.Drawing.prototype.printAllLayersText = function(){
@@ -492,9 +519,6 @@ svgedit.draw.Drawing.prototype.deleteCurrentLayer = function() {
  * also the current layer of this drawing.
 */
 svgedit.draw.Drawing.prototype.createLayer = function(name) {
-	console.log("create layer");
-	// console.log("current layer text = " + this.getCurrentLayerText());
-	console.log("length of all layers = " + this.all_layers.length);
 	var svgdoc = this.svgElem_.ownerDocument;
 	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
 	var layer_title = svgdoc.createElementNS(NS.SVG, "title");

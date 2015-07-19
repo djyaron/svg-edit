@@ -1788,8 +1788,8 @@ TODOS
 				/* stores all the textEditorPreview into layer's text*/
 				var currentDrawing = svgCanvas.getCurrentDrawing();
 				var existingText = $('#texteditor').val();
-				console.log("EXITING LAYER - exiting layer : " + currentDrawing.getCurrentLayerName() + 
-					" saving texteditor content = " + existingText);
+				// console.log("EXITING LAYER - exiting layer : " + currentDrawing.getCurrentLayerName() + 
+				// 	" saving texteditor content = " + existingText);
 				svgCanvas.getCurrentDrawing().setCurrentLayerText(existingText);
 				currentDrawing.printAllLayersText();
 			}
@@ -1801,7 +1801,7 @@ TODOS
 				$('#texteditorpreview').val('');
 				/*loads existing layer's text */
 				var layerText = svgCanvas.getCurrentDrawing().getCurrentLayerText();
-				console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
+				// console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
 
 				var layerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
 				// $('#texteditor').val(layerText);
