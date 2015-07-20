@@ -4311,6 +4311,7 @@ this.setGoodImage = function(val) {
 };
 
 this.open = function() {
+	console.log("svgcanvas this.open()");
 	// Nothing by default, handled by optional widget/extension
 };
 
@@ -4802,7 +4803,8 @@ this.setSvgString = function(xmlString) {
 		
 		svgroot.appendChild(svgcontent);
 		var content = $(svgcontent);
-		
+
+
 		canvas.current_drawing_ = new svgedit.draw.Drawing(svgcontent, idprefix);
 		
 		// retrieve or set the nonce
@@ -4862,6 +4864,7 @@ this.setSvgString = function(xmlString) {
 		setUseData(content);
 		
 		convertGradients(content[0]);
+
 		
 		// recalculate dimensions on the top-level children so that unnecessary transforms
 		// are removed
@@ -4879,7 +4882,7 @@ this.setSvgString = function(xmlString) {
 		};
 		
 		var percs = false;
-		
+
 		// determine proper size
 		if (content.attr('viewBox')) {
 			var vb = content.attr('viewBox').split(' ');
@@ -4904,20 +4907,20 @@ this.setSvgString = function(xmlString) {
 		}
 		
 		// identify layers
+		console.log("does it even reach here...line 4911");
 		identifyLayers();
-		
+		console.log("does it even reach here...line 4912");
 		// Give ID for any visible layer children missing one
 		content.children().find(visElems).each(function() {
 			if (!this.id) {this.id = getNextId();}
 		});
-		
+		console.log("does it even reach here...line 4919");
 		// Percentage width/height, so let's base it on visible elements
 		if (percs) {
 			var bb = getStrokedBBox();
 			attrs.width = bb.width + bb.x;
 			attrs.height = bb.height + bb.y;
 		}
-		
 		// Just in case negative numbers are given or 
 		// result from the percs calculation
 		if (attrs.width <= 0) {attrs.width = 100;}
@@ -4942,7 +4945,7 @@ this.setSvgString = function(xmlString) {
 		svgroot.appendChild(selectorManager.selectorParentGroup);
 		
 		addCommandToHistory(batchCmd);
-		call('changed', [svgcontent]);
+		call('changed', [svgcontent]); 
 	} catch(e) {
 		console.log(e);
 		return false;

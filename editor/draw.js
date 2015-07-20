@@ -185,12 +185,6 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 					svgedit.utilities.walkTree(child, function(e){e.setAttribute("style", "pointer-events:inherit");});
 					a_layer.setAttribute("style", "pointer-events:none");
 					identifyLayersSetText(i,this.all_layers,old_all_layers);
-					/*set the layer text of previous layers */
-					// if ((i -2) >= 0){ //offset by 2
-					// 	var textIndex = i-2;
-					// 	this.all_layers[textIndex][2]= old_all_layers[textIndex][2];
-					// 	console.log("is this even running...this.all_layers[i].length = " + this.all_layers[textIndex].length);
-					// }
 				}
 				// if group did not have a name, it is an orphan
 				else {
@@ -235,10 +229,14 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
  */
 var identifyLayersSetText = function(index,all_layers,old_all_layers){
 	/*set the layer text of previous layers */
+	console.log("in identifyLayersSetText ");
 	if ((index -2) >= 0){ //numChild nodes length offset by 2 to all_layers length
 		var textIndex = index-2;
-		all_layers[textIndex][2]= old_all_layers[textIndex][2];
+		if (all_layers[textIndex] != null){
+			all_layers[textIndex][2]= old_all_layers[textIndex][2];
+		}
 	}
+	console.log("finished identifyLayersSetText");
 }
 
 /**

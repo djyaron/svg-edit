@@ -1798,7 +1798,7 @@ TODOS
 			var editorEntersLayer = function(){
 				/* erases contents of textEditor and textEditorPreview*/
 				$('#texteditor').val('');
-				$('#texteditorpreview').val('');
+				$('#texteditorpreview').text('');
 				/*loads existing layer's text */
 				var layerText = svgCanvas.getCurrentDrawing().getCurrentLayerText();
 				// console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
@@ -4377,15 +4377,16 @@ TODOS
 				}
 			}
 
-			/* called whenever layer is changed*/
-			function layerHasChanged(){
-				editorEntersLayer(); 
-			}
-
 			/*called right before layer is changed */
 			function layerWillChange(){
 				editorExitsLayer();
 			}
+
+			/* called right after layer is changed*/
+			function layerHasChanged(){
+				editorEntersLayer(); 
+			}
+
 
 			$('#layer_delete').click(deleteLayer);
 
