@@ -4907,14 +4907,11 @@ this.setSvgString = function(xmlString) {
 		}
 		
 		// identify layers
-		console.log("does it even reach here...line 4911");
 		identifyLayers();
-		console.log("does it even reach here...line 4912");
 		// Give ID for any visible layer children missing one
 		content.children().find(visElems).each(function() {
 			if (!this.id) {this.id = getNextId();}
 		});
-		console.log("does it even reach here...line 4919");
 		// Percentage width/height, so let's base it on visible elements
 		if (percs) {
 			var bb = getStrokedBBox();

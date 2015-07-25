@@ -233,7 +233,6 @@ var identifyLayersSetText = function(index,all_layers,old_all_layers){
 	if ((index -2) >= 0){ //numChild nodes length offset by 2 to all_layers length
 		var textIndex = index-2;
 		if (!all_layers[textIndex]){
-			console.log("why is this going in if it's null..")
 			all_layers[textIndex][2]= old_all_layers[textIndex][2];
 		}
 	}
