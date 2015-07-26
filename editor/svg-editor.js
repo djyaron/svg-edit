@@ -646,6 +646,7 @@ TODOS
 
 					'#tool_clear div,#layer_new': 'new_image',
 					'#tool_save div': 'save',
+					'#tool_save_layer div': 'testing_save_layer',
 					'#tool_export div': 'export',
 					'#tool_open div div': 'open',
 					'#tool_import div div': 'import',
@@ -3632,6 +3633,14 @@ TODOS
 				svgCanvas.save(saveOpts);
 			};
 
+			var clickSaveLayer = function(){
+				var saveOpts = {
+					'images': $.pref('img_save'),
+					'round_digits': 6
+				};
+				svgCanvas.saveLayer(saveOpts);
+			}
+
 			var clickExport = function() {
 				$.select('Select an image type for export: ', [
 					// See http://kangax.github.io/jstests/toDataUrl_mime_type_test/ for a useful list of MIME types and browser support
@@ -4585,6 +4594,7 @@ TODOS
 							clickSave();
 						}
 					}, evt: 'mouseup', key: ['S', true]},
+					{sel: '#tool_save_layer', fn: clickSaveLayer, evt: 'mouseup'},
 					{sel: '#tool_export', fn: clickExport, evt: 'mouseup'},
 					{sel: '#tool_open', fn: clickOpen, evt: 'mouseup', key: ['O', true]},
 					{sel: '#tool_import', fn: clickImport, evt: 'mouseup'},

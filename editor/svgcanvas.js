@@ -4119,7 +4119,6 @@ this.setCurrentLayerSVGToString = function(){
 // 				<text fill="#000000" stroke="#000000" stroke-width="0" x="272" y="274" id="svg_2" font-size="24" font-family="serif"...
 // 				text-anchor="middle" xml:space="preserve">okay layer two</text>
 // 				</g>
-
 }
 
 // Function: svgToString
@@ -4358,6 +4357,24 @@ this.save = function(opts) {
 	var str = this.svgCanvasToString();
 	call('saved', str);
 };
+
+// Function: saveLayer
+// Serializes the current layer into SVG XML text and returns it to the 'saved' handler.
+// Similar implmenetation to this.save function
+//
+// Returns: 
+// Nothing
+this.saveLayer = function(opts){
+	// remove the selected outline before serializing
+	clearSelection();
+	// Update save options if provided
+	if (opts) {$.extend(save_options, opts);}
+	save_options.apply = true;
+	
+	// no need for doctype, see http://jwatt.org/svg/authoring/#doctype-declaration
+	var str = this.setCurrentLayerSVGToString();
+	call('saved', str);
+}
 
 function getIssues () {
 	// remove the selected outline before serializing
