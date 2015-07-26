@@ -4067,13 +4067,16 @@ this.svgCanvasToString = function() {
 	}
 	
 	var naked_svgs = [];
-	
+	console.log(" in line 4070...");
 	// Unwrap gsvg if it has no special attributes (only id and style)
 	$(svgcontent).find('g:data(gsvg)').each(function() {
+		console.log("in line 4073...finding 'g:data(gsvg)' in svgContent");
 		var attrs = this.attributes;
 		var len = attrs.length;
 		var i;
 		for (i = 0; i < len; i++) {
+			// console.log("attrs[i].nodeName  = " + attrs[i].nodeName );
+			// console.log("attrs[i]  = " + attrs[i] );
 			if (attrs[i].nodeName == 'id' || attrs[i].nodeName == 'style') {
 				len--;
 			}
@@ -4085,17 +4088,39 @@ this.svgCanvasToString = function() {
 			$(this).replaceWith(svg);
 		}
 	});
-	var output = this.svgToString(svgcontent, 0);
+
+	console.log("in line 4092...about to call outputs");
+	var output = this.svgToString(svgcontent, 0); 
+	var curlayerput = this.svgToString(getCurrentDrawing().getCurrentLayer(), 0); 
+	console.log("svgcontent results in = \n" + output);
+	console.log("curlayerput results in = \n" + curlayerput);
+
 	
 	// Rewrap gsvg
 	if (naked_svgs.length) {
+		console.log("in line 4096... naked_svgs is not empty");
 		$(naked_svgs).each(function() {
 			groupSvgElem(this);
 		});
 	}
-	
 	return output;
 };
+
+// Function: setCurrentLayerSVGToString
+// Main function to set up only the current layer's SVG content for output 
+//
+// Returns: 
+// String containing the SVG image for output
+this.setCurrentLayerSVGToString = function(){
+	var current_layer = getCurrentDrawing().getCurrentLayer();
+	return this.svgToString(getCurrentDrawing().getCurrentLayer(),0); 
+// sample output =	<g>
+// 				<title>Layer 2</title>
+// 				<text fill="#000000" stroke="#000000" stroke-width="0" x="272" y="274" id="svg_2" font-size="24" font-family="serif"...
+// 				text-anchor="middle" xml:space="preserve">okay layer two</text>
+// 				</g>
+
+}
 
 // Function: svgToString
 // Sub function ran on each SVG element to convert it to a string as desired
@@ -4107,6 +4132,7 @@ this.svgCanvasToString = function() {
 // Returns: 
 // String with the given element as an SVG tag
 this.svgToString = function(elem, indent) {
+	console.log("in line 4116...calling svgToString");
 	var out = [], 
 		toXml = svgedit.utilities.toXml;
 	var unit = curConfig.baseUnit;
@@ -4120,11 +4146,11 @@ this.svgToString = function(elem, indent) {
 			childs = elem.childNodes;
 		
 		for (i = 0; i < indent; i++) {out.push(' ');}
-		out.push('<'); out.push(elem.nodeName);
+		out.push('<'); 
+		out.push(elem.nodeName); //elem.nodename = svg,g,title,text,g,title,text etc..
 		if (elem.id === 'svgcontent') {
 			// Process root element separately
 			var res = getResolution();
-			
 			var vb = '';
 			// TODO: Allow this by dividing all values by current baseVal
 			// Note that this also means we should properly deal with this on import
@@ -4311,7 +4337,6 @@ this.setGoodImage = function(val) {
 };
 
 this.open = function() {
-	console.log("svgcanvas this.open()");
 	// Nothing by default, handled by optional widget/extension
 };
 

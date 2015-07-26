@@ -3685,7 +3685,6 @@ TODOS
 			// it is up to an extension mechanism (opera widget, etc)
 			// to call setCustomHandlers() which will make it do something
 			var clickOpen = function() {
-				console.log("svg-editor -> clickOpen")
 				svgCanvas.open();
 			};
 

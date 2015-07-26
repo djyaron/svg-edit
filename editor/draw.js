@@ -156,9 +156,6 @@ svgedit.draw.Drawing = function(svgElem, opt_idPrefix) {
 svgedit.draw.Drawing.prototype.identifyLayers = function() {
 	var old_all_layers = this.all_layers;
 	this.all_layers = [];
-	// if (old_all_layers.length != 0) {
-	// 	console.log("old_all_layers name = " + old_all_layers[old_all_layers.length-1][0]);
-	// }
 	var numchildren = this.svgElem_.childNodes.length;
 	// loop through all children of SVG element
 	var orphans = [], layernames = [];
@@ -229,14 +226,12 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
  */
 var identifyLayersSetText = function(index,all_layers,old_all_layers){
 	/*set the layer text of previous layers */
-	console.log("in identifyLayersSetText ");
 	if ((index -2) >= 0){ //numChild nodes length offset by 2 to all_layers length
 		var textIndex = index-2;
 		if (!all_layers[textIndex]){
 			all_layers[textIndex][2]= old_all_layers[textIndex][2];
 		}
 	}
-	console.log("finished identifyLayersSetText");
 }
 
 /**
