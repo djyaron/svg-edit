@@ -195,7 +195,7 @@ svgedit.utilities.text2xml = function(sXML) {
 
 	var out, dXML;
 	try{
-		dXML = (window.DOMParser)?new DOMParser():new ActiveXObject('Microsoft.XMLDOM');
+		dXML = (window.DOMParser)? new DOMParser():new ActiveXObject('Microsoft.XMLDOM');
 		dXML.async = false;
 	} catch(e){
 		throw new Error('XML Parser could not be instantiated');

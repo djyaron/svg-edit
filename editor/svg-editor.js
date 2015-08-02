@@ -193,7 +193,9 @@ TODOS
 				}
 			};
 
+		/* loads SVGString of canvas */
 		function loadSvgString (str, callback) {
+			console.log("in svg-edtior - at loadSvgString...");
 			var success = svgCanvas.setSvgString(str) !== false;
 			callback = callback || $.noop;
 			if (success) {
@@ -204,6 +206,22 @@ TODOS
 				});
 			}
 		}
+
+		/* loads SvgLayerString of only one layer */
+		function loadSvgLayerString (str, callback) {
+			console.log("in svg-edtior - at loadSvgString...");
+			var success = svgCanvas.setSvgLayerString(str) !== false;
+			callback = callback || $.noop;
+			if (success) {
+				callback(true);
+			} else {
+				$.alert(uiStrings.notification.errorLoadingSVG, function() {
+					callback(false);
+				});
+			}
+		}
+
+
 		
 		/**
 		* EXPORTS
@@ -397,7 +415,7 @@ TODOS
 		*		'WEBP', 'PDF'), "mimeType", and "quality" (for 'JPEG' and 'WEBP'
 		*		types) to determine the proper output.
 		*/
-		editor.setCustomHandlers = function (opts) {
+		editor.setCustomHandlers = function(opts) {
 			editor.ready(function() {
 				if (opts.open) {
 					$('#tool_open > input[type="file"]').remove();
@@ -415,6 +433,11 @@ TODOS
 				if (opts.exportPDF) {
 					customExportPDF = opts.exportPDF;
 					svgCanvas.bind('exportedPDF', customExportPDF); // jsPDF and our RGBColor will be available to the method
+				}
+				if (opts.openLayer) {
+					$('#tool_import_layer > input[type="file"]').remove();
+					$('#tool_import_layer').show();
+					svgCanvas.openLayer = opts.openLayer;
 				}
 			});
 		};
@@ -646,10 +669,11 @@ TODOS
 
 					'#tool_clear div,#layer_new': 'new_image',
 					'#tool_save div': 'save',
-					'#tool_save_layer div': 'testing_save_layer',
+					// '#tool_save_layer div': 'save_layer', 
 					'#tool_export div': 'export',
 					'#tool_open div div': 'open',
 					'#tool_import div div': 'import',
+					'#tool_import_layer div div': 'import_layer',
 					'#tool_source': 'source',
 					'#tool_docprops > div': 'docprops',
 					'#tool_wireframe': 'wireframe',
@@ -3700,6 +3724,37 @@ TODOS
 			var clickImport = function() {
 			};
 
+			var clickImportLayer = function(){
+				svgCanvas.openLayer();
+				console.log("clicked import layer!");	
+
+				$('#tool_import_layer').on('click', function() {
+					$('#tool_import_layer').trigger('click');
+				});
+			};
+
+			// var open = $('<input type="file">').change(function() {
+			// 	console.log("open was clicked...svgEditor line 5091");
+			// 	var f = this;
+			// 	editor.openPrep(function(ok) {
+			// 		if (!ok) {return;}
+			// 		svgCanvas.clear();
+			// 		if (f.files.length === 1) {
+			// 			$.process_cancel(uiStrings.notification.loadingImage);
+			// 			var reader = new FileReader();
+			// 			reader.onloadend = function(e) {
+			// 				loadSvgString(e.target.result);
+			// 				updateCanvas();
+			// 			};
+			// 			reader.readAsText(f.files[0]);
+			// 		}
+			// 	});
+			// });
+			// $('#tool_open').show().prepend(open);
+
+
+
+
 			var clickUndo = function() {
 				if (undoMgr.getUndoStackSize() > 0) {
 					undoMgr.undo();
@@ -4598,6 +4653,7 @@ TODOS
 					{sel: '#tool_export', fn: clickExport, evt: 'mouseup'},
 					{sel: '#tool_open', fn: clickOpen, evt: 'mouseup', key: ['O', true]},
 					{sel: '#tool_import', fn: clickImport, evt: 'mouseup'},
+					{sel: '#tool_import_layer', fn: clickImportLayer, evt: 'mouseup'},
 					{sel: '#tool_source', fn: showSourceEditor, evt: 'click', key: ['U', true]},
 					{sel: '#tool_wireframe', fn: clickWireframe, evt: 'click', key: ['F', true]},
 					{sel: '#tool_source_cancel,.overlay,#tool_docprops_cancel,#tool_prefs_cancel', fn: cancelOverlays, evt: 'click', key: ['esc', false, false], hidekey: true},
@@ -5030,6 +5086,7 @@ TODOS
 						if (file.type.indexOf('svg') != -1) {
 							reader = new FileReader();
 							reader.onloadend = function(e) {
+								console.log("adding in svg files...svgEditor line 5033");
 								svgCanvas.importSvgString(e.target.result, true);
 								svgCanvas.ungroupSelectedElement();
 								svgCanvas.ungroupSelectedElement();
@@ -5087,6 +5144,7 @@ TODOS
 				workarea[0].addEventListener('drop', importImage, false);
 
 				var open = $('<input type="file">').change(function() {
+					console.log("open was clicked...svgEditor line 5091");
 					var f = this;
 					editor.openPrep(function(ok) {
 						if (!ok) {return;}

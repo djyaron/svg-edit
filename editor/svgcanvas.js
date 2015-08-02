@@ -4131,7 +4131,7 @@ this.setCurrentLayerSVGToString = function(){
 // Returns: 
 // String with the given element as an SVG tag
 this.svgToString = function(elem, indent) {
-	console.log("in line 4116...calling svgToString");
+	console.log("svgcanvas in line 4134...calling svgToString");
 	var out = [], 
 		toXml = svgedit.utilities.toXml;
 	var unit = curConfig.baseUnit;
@@ -4337,6 +4337,10 @@ this.setGoodImage = function(val) {
 
 this.open = function() {
 	// Nothing by default, handled by optional widget/extension
+};
+
+this.openLayer = function() {
+	// called through setCustomHandlers in svg-editor
 };
 
 // Function: save
@@ -4824,7 +4828,6 @@ this.setSvgString = function(xmlString) {
 	try {
 		// convert string into XML document
 		var newDoc = svgedit.utilities.text2xml(xmlString);
-
 		this.prepareSvg(newDoc);
 
 		var batchCmd = new svgedit.history.BatchCommand('Change Source');
@@ -4842,13 +4845,10 @@ this.setSvgString = function(xmlString) {
 		else {
 			svgcontent = svgdoc.importNode(newDoc.documentElement, true);
 		}
-		
+
 		svgroot.appendChild(svgcontent);
 		var content = $(svgcontent);
-
-
-		canvas.current_drawing_ = new svgedit.draw.Drawing(svgcontent, idprefix);
-		
+		canvas.current_drawing_ = new svgedit.draw.Drawing(svgcontent, idprefix); //starts new drawing
 		// retrieve or set the nonce
 		var nonce = getCurrentDrawing().getNonce();
 		if (nonce) {
@@ -4856,7 +4856,6 @@ this.setSvgString = function(xmlString) {
 		} else {
 			call('unsetnonce');
 		}
-		
 		// change image href vals if possible
 		content.find('image').each(function() {
 			var image = this;
@@ -4877,8 +4876,8 @@ this.setSvgString = function(xmlString) {
 				canvas.embedImage(val);
 			}
 		});
-	
 		// Wrap child SVGs in group elements
+		// content.find('svg').each(function() {
 		content.find('svg').each(function() {
 			// Skip if it's in a <defs>
 			if ($(this).closest('defs').length) {return;}
@@ -4894,7 +4893,6 @@ this.setSvgString = function(xmlString) {
 				groupSvgElem(this);
 			}
 		});
-		
 		// For Firefox: Put all paint elems in defs
 		if (svgedit.browser.isGecko()) {
 			content.find('linearGradient, radialGradient, pattern').appendTo(svgedit.utilities.findDefs());
@@ -4924,7 +4922,6 @@ this.setSvgString = function(xmlString) {
 		};
 		
 		var percs = false;
-
 		// determine proper size
 		if (content.attr('viewBox')) {
 			var vb = content.attr('viewBox').split(' ');
@@ -4947,7 +4944,6 @@ this.setSvgString = function(xmlString) {
 				}
 			});
 		}
-		
 		// identify layers
 		identifyLayers();
 		// Give ID for any visible layer children missing one
@@ -4976,7 +4972,6 @@ this.setSvgString = function(xmlString) {
 		
 		// reset zoom
 		current_zoom = 1;
-		
 		// reset transform lists
 		svgedit.transformlist.resetListMap();
 		clearSelection();
@@ -4989,9 +4984,50 @@ this.setSvgString = function(xmlString) {
 		console.log(e);
 		return false;
 	}
-
 	return true;
 };
+
+
+//
+// Function: setSvgString
+// This function sets the new layer as highest layer.
+// Parameters:
+// xmlString - The SVG as XML text.
+//
+// Returns:
+// This function returns false if the set was unsuccessful, true otherwise.
+this.setSvgLayerString = function(xmlString) {
+	try{
+		console.log("setSvgString...svgCanvas line 5011");
+		// convert string into XML document
+		var newDoc = svgedit.utilities.text2xml(xmlString);
+		this.prepareSvg(newDoc);
+
+		// var batchCmd = new svgedit.history.BatchCommand('Change Source');
+
+		// remove old svg document
+		// var nextSibling = svgcontent.nextSibling;
+		// var oldzoom = svgroot.removeChild(svgcontent);
+		// batchCmd.addSubCommand(new svgedit.history.RemoveElementCommand(oldzoom, nextSibling, svgroot));
+
+		// set new svg document
+		// If DOM3 adoptNode() available, use it. Otherwise fall back to DOM2 importNode()
+		console.log("before setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
+		if (svgdoc.adoptNode) {
+			svgcontent += svgdoc.adoptNode(newDoc.documentElement);
+		}
+		else {
+			svgcontent += svgdoc.importNode(newDoc.documentElement, true);
+		}
+		console.log("after setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
+
+
+	} catch(e){
+		console.log(e);
+		return false;
+	}
+	return true;
+}
 
 // Function: importSvgString
 // This function imports the input SVG XML as a <symbol> in the <defs>, then adds a
@@ -5010,6 +5046,7 @@ this.setSvgString = function(xmlString) {
 // was obtained
 // * import should happen in top-left of current zoomed viewport	
 this.importSvgString = function(xmlString) {
+	console.log("importSvgString...svgcanvas line 5013");
 	var j, ts;
 	try {
 		// Get unique ID
@@ -7669,6 +7706,8 @@ this.alignSelectedElements = function(type, relative_to) {
 			case 'c': // center (horizontal)
 				dx[i] = (minx+maxx)/2 - (bbox.x + bbox.width/2);
 				break;
+
+
 			case 'r': // right (horizontal)
 				dx[i] = maxx - (bbox.x + bbox.width);
 				break;
