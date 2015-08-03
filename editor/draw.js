@@ -480,8 +480,11 @@ svgedit.draw.Drawing.prototype.printAllLayersText = function(){
 	var i;
 	for (i = 0; i < this.getNumLayers(); ++i) {
 		var layerContent = this.all_layers[i][2];
-		console.log("layer "+ (i+1) + " content : " + layerContent)
+		// console.log("layer "+ (i+1) + " content : " + layerContent)
 	}
+	var s = new XMLSerializer();
+	var str = s.serializeToString(this.current_layer);
+	alert(str);
 }
 
 
@@ -515,14 +518,38 @@ svgedit.draw.Drawing.prototype.createLayer = function(name) {
 	var svgdoc = this.svgElem_.ownerDocument;
 	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
 	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-	// var layer_text = svgdoc.createElementNS(NS.SVG, "innerHTML");
 	layer_title.textContent = name;
 	new_layer.appendChild(layer_title);
-	// new_layer.appendChild(layer_text);
 	this.svgElem_.appendChild(new_layer);
+	console.log("createLayer new_layer = " + new_layer);
 	this.identifyLayers();
 	return new_layer;
 };
+
+/**
+ * inserts a new top-level layer in the drawing given xmlString
+ * sets the current layer to it.
+ * @param {string} name - The given name
+ * @returns {SVGGElement} The SVGGElement of the new layer, which is
+ * also the current layer of this drawing.
+*/
+svgedit.draw.Drawing.prototype.insertLayer = function(xmlstr) {
+	/* given xmlStr turn into svggelement*/
+
+	/* insert svggelement as new layer*/
+
+	var svgdoc = this.svgElem_.ownerDocument;
+	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
+	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
+	layer_title.textContent = name;
+	new_layer.appendChild(layer_title);
+	this.svgElem_.appendChild(new_layer);
+	console.log("createLayer new_layer = " + new_layer.textContent); //new_layer == svgleemnt
+	this.identifyLayers();
+	return new_layer;
+};
+
+
 
 /**
  * Returns whether the layer is visible.  If the layer name is not valid,

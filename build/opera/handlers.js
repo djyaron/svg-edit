@@ -31,8 +31,36 @@ $(function() {
 				catch(e) {
 					console.log("Open file failed.");
 				}
-
 			},
+			// 'importLayer':function(){
+			// 	try {
+			// 		window.opera.io.filesystem.browseForFile(
+			// 			new Date().getTime(), /* mountpoint name */
+			// 			"", /* default location */
+			// 			function(file) {
+			// 				try {
+			// 					if (file) {
+			// 						fstream = file.open(file, "r");
+			// 						var output = "";
+			// 						while (!fstream.eof) {
+			// 							output += fstream.readLine();
+			// 						}
+			// 						svgCanvas.setSvgLoadString(output); /* 'this' is bound to the filestream object here */
+			// 					}
+			// 				}
+			// 				catch(e) {
+			// 					console.log("Reading file failed.");
+			// 				}
+			// 			},
+			// 			false, /* not persistent */
+			// 			false, /* no multiple selections */
+			// 			"*.svg" /* file extension filter */
+			// 			);
+			// 	}
+			// 	catch(e) {
+			// 		console.log("Open file failed.");
+			// 	}
+			// },
 			'save':function(window, svg) {
 				try {
 					window.opera.io.filesystem.browseForSave(

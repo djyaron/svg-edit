@@ -210,7 +210,10 @@ TODOS
 		/* loads SvgLayerString of only one layer */
 		function loadSvgLayerString (str, callback) {
 			console.log("in svg-edtior - at loadSvgString...");
-			var success = svgCanvas.setSvgLayerString(str) !== false;
+			console.log("loadSvgLayerString: str = " + str);
+			/*turns str into svggelement */
+			/*draw.j -> insert(svggelement as new layer) */
+			var success = svgCanvas.getCurrentDrawing().insertLayer(str);
 			callback = callback || $.noop;
 			if (success) {
 				callback(true);
@@ -434,10 +437,10 @@ TODOS
 					customExportPDF = opts.exportPDF;
 					svgCanvas.bind('exportedPDF', customExportPDF); // jsPDF and our RGBColor will be available to the method
 				}
-				if (opts.openLayer) {
-					$('#tool_import_layer > input[type="file"]').remove();
+				if (opts.importLayer) {
+					$('#tool_import_layer > input[type="file"]').remove(); //hides input file button
 					$('#tool_import_layer').show();
-					svgCanvas.openLayer = opts.openLayer;
+					svgCanvas.importLayer = opts.importLayer;
 				}
 			});
 		};
@@ -3725,34 +3728,9 @@ TODOS
 			};
 
 			var clickImportLayer = function(){
-				svgCanvas.openLayer();
-				console.log("clicked import layer!");	
-
-				$('#tool_import_layer').on('click', function() {
-					$('#tool_import_layer').trigger('click');
-				});
+				/*open window to input file*/
+				console.log("clickImportLayer...");
 			};
-
-			// var open = $('<input type="file">').change(function() {
-			// 	console.log("open was clicked...svgEditor line 5091");
-			// 	var f = this;
-			// 	editor.openPrep(function(ok) {
-			// 		if (!ok) {return;}
-			// 		svgCanvas.clear();
-			// 		if (f.files.length === 1) {
-			// 			$.process_cancel(uiStrings.notification.loadingImage);
-			// 			var reader = new FileReader();
-			// 			reader.onloadend = function(e) {
-			// 				loadSvgString(e.target.result);
-			// 				updateCanvas();
-			// 			};
-			// 			reader.readAsText(f.files[0]);
-			// 		}
-			// 	});
-			// });
-			// $('#tool_open').show().prepend(open);
-
-
 
 
 			var clickUndo = function() {
@@ -5143,6 +5121,7 @@ TODOS
 				workarea[0].addEventListener('dragleave', onDragLeave, false);
 				workarea[0].addEventListener('drop', importImage, false);
 
+				/* find where this button is hidden*/
 				var open = $('<input type="file">').change(function() {
 					console.log("open was clicked...svgEditor line 5091");
 					var f = this;
@@ -5161,6 +5140,28 @@ TODOS
 					});
 				});
 				$('#tool_open').show().prepend(open);
+
+				/*this will make a open file button - start */
+				var importLayer = $('<input type="file">').change(function() {
+					console.log("importLayer was clicked...svgEditor line 5172");
+					var f = this;
+					editor.openPrep(function(ok) {
+						if (!ok) {return;}
+						svgCanvas.clear();
+						if (f.files.length === 1) {
+							$.process_cancel(uiStrings.notification.loadingImage);
+							var reader = new FileReader();
+							reader.onloadend = function(e) {
+								console.log("in importLayer");
+								loadSvgLayerString(e.target.result);
+								updateCanvas();
+							};
+							reader.readAsText(f.files[0]);
+						}
+					});
+				});
+				$('#tool_import_layer').show().prepend(importLayer);
+				/*this will make a open file button - end */
 
 				var imgImport = $('<input type="file">').change(importImage);
 				$('#tool_import').show().prepend(imgImport);

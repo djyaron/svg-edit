@@ -4131,7 +4131,6 @@ this.setCurrentLayerSVGToString = function(){
 // Returns: 
 // String with the given element as an SVG tag
 this.svgToString = function(elem, indent) {
-	console.log("svgcanvas in line 4134...calling svgToString");
 	var out = [], 
 		toXml = svgedit.utilities.toXml;
 	var unit = curConfig.baseUnit;
@@ -4339,7 +4338,7 @@ this.open = function() {
 	// Nothing by default, handled by optional widget/extension
 };
 
-this.openLayer = function() {
+this.importLayer = function() {
 	// called through setCustomHandlers in svg-editor
 };
 
@@ -4997,36 +4996,34 @@ this.setSvgString = function(xmlString) {
 // Returns:
 // This function returns false if the set was unsuccessful, true otherwise.
 this.setSvgLayerString = function(xmlString) {
-	try{
-		console.log("setSvgString...svgCanvas line 5011");
-		// convert string into XML document
-		var newDoc = svgedit.utilities.text2xml(xmlString);
-		this.prepareSvg(newDoc);
-
-		// var batchCmd = new svgedit.history.BatchCommand('Change Source');
-
-		// remove old svg document
-		// var nextSibling = svgcontent.nextSibling;
-		// var oldzoom = svgroot.removeChild(svgcontent);
-		// batchCmd.addSubCommand(new svgedit.history.RemoveElementCommand(oldzoom, nextSibling, svgroot));
-
-		// set new svg document
-		// If DOM3 adoptNode() available, use it. Otherwise fall back to DOM2 importNode()
-		console.log("before setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
-		if (svgdoc.adoptNode) {
-			svgcontent += svgdoc.adoptNode(newDoc.documentElement);
-		}
-		else {
-			svgcontent += svgdoc.importNode(newDoc.documentElement, true);
-		}
-		console.log("after setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
+	// try{
+	// 	console.log("svgcanvas - setSvgLayerString");
+	// 	// convert string into XML document
+	// 	console.log("xmlString = " +xmlString);
 
 
-	} catch(e){
-		console.log(e);
-		return false;
-	}
-	return true;
+	// 	// var batchCmd = new svgedit.history.BatchCommand('Change Source');
+
+	// 	// remove old svg document
+	// 	// var nextSibling = svgcontent.nextSibling;
+	// 	// var oldzoom = svgroot.removeChild(svgcontent);
+	// 	// batchCmd.addSubCommand(new svgedit.history.RemoveElementCommand(oldzoom, nextSibling, svgroot));
+
+	// 	// set new svg document
+	// 	// If DOM3 adoptNode() available, use it. Otherwise fall back to DOM2 importNode()
+	// 	console.log("before setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
+	// 	if (svgdoc.adoptNode) {
+	// 		svgcontent += svgdoc.adoptNode(newDoc.documentElement);
+	// 	}
+	// 	else {
+	// 		svgcontent += svgdoc.importNode(newDoc.documentElement, true);
+	// 	}
+	// 	console.log("after setSvgString svgcontent " + svgcontent.innerHTML); // [object svgsvgobject]
+	// } catch(e){
+	// 	console.log(e);
+	// 	return false;
+	// }
+	// return true;
 }
 
 // Function: importSvgString
