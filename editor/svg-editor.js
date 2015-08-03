@@ -210,10 +210,9 @@ TODOS
 		/* loads SvgLayerString of only one layer */
 		function loadSvgLayerString (str, callback) {
 			console.log("in svg-edtior - at loadSvgString...");
-			console.log("loadSvgLayerString: str = " + str);
 			/*turns str into svggelement */
 			/*draw.j -> insert(svggelement as new layer) */
-			var success = svgCanvas.getCurrentDrawing().insertLayer(str);
+			var success = svgCanvas.getCurrentDrawing().insertLayer(Utils.toXml(str));
 			callback = callback || $.noop;
 			if (success) {
 				callback(true);

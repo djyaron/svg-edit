@@ -486,6 +486,13 @@ svgedit.draw.Drawing.prototype.printAllLayersText = function(){
 	var str = s.serializeToString(this.current_layer);
 	alert(str);
 }
+//<g xmlns="http://www.w3.org/2000/svg" style="pointer-events:all" opacity="1">
+//<title style="pointer-events:inherit">Layer 1</title>
+//<rect fill="#FF0000" stroke="#000000" stroke-width="5" style="pointer-events:inherit" 
+// x="159" y="163" width="290" height="132" id="svg_1" fill-opacity="1" stroke-opacity="1"/>
+// <rect fill="#FF0000" stroke="#000000" stroke-width="5" style="pointer-events:inherit" x="499" 
+// y="190" width="0" height="148" id="svg_2" fill-opacity="1" stroke-opacity="1"/>
+// </g>
 
 
 /**
@@ -521,7 +528,6 @@ svgedit.draw.Drawing.prototype.createLayer = function(name) {
 	layer_title.textContent = name;
 	new_layer.appendChild(layer_title);
 	this.svgElem_.appendChild(new_layer);
-	console.log("createLayer new_layer = " + new_layer);
 	this.identifyLayers();
 	return new_layer;
 };
@@ -535,16 +541,22 @@ svgedit.draw.Drawing.prototype.createLayer = function(name) {
 */
 svgedit.draw.Drawing.prototype.insertLayer = function(xmlstr) {
 	/* given xmlStr turn into svggelement*/
+	var parser = new DOMParser();
+	//try turning xmlstr into xml and then 
+	console.log("xmlStr = " + xmlstr);
+	var doc = parser.parseFromString(xmlstr,"image/svg+xml"); //should return SVGDocument
 
+	console.log("doc = " + doc);
 	/* insert svggelement as new layer*/
 
-	var svgdoc = this.svgElem_.ownerDocument;
-	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
-	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-	layer_title.textContent = name;
-	new_layer.appendChild(layer_title);
-	this.svgElem_.appendChild(new_layer);
-	console.log("createLayer new_layer = " + new_layer.textContent); //new_layer == svgleemnt
+	// var svgdoc = this.svgElem_.ownerDocument;
+	// var new_layer = svgdoc.createElementNS(NS.SVG, "g");
+	// var layer_title = svgdoc.createElementNS(NS.SVG, "title");
+	// layer_title.textContent = name;
+	// new_layer.appendChild(layer_title);
+	// this.svgElem_.appendChild(new_layer);
+	this.svgElem_.appendChild(doc);
+
 	this.identifyLayers();
 	return new_layer;
 };
