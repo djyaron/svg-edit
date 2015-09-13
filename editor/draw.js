@@ -166,7 +166,7 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 		var child = this.svgElem_.childNodes.item(i);
 		// for each g, find its layer name
 		if (child && child.nodeType == 1) {
-			if (child.tagName == "svg") {
+			if (child.tagName == "g") {
 				childgroups = true;
 				var name = $("title", child).text();
 				// Hack for Opera 10.60
@@ -185,7 +185,7 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 				}
 				// if group did not have a name, it is an orphan
 				else {
-					orphans.push(child); //svg contains g child
+					orphans.push(child);
 				}
 			}
 			// if child has is "visible" (i.e. not a <title> or <defs> element), then it is an orphan
@@ -203,7 +203,7 @@ svgedit.draw.Drawing.prototype.identifyLayers = function() {
 		// TODO(codedread): What about internationalization of "Layer"?
 		while (layernames.indexOf(("Layer " + i)) >= 0) { i++; }
 		var newname = "Layer " + i;
-		a_layer = svgdoc.createElementNS(NS.SVG, "svg");
+		a_layer = svgdoc.createElementNS(NS.SVG, "g");
 		var layer_title = svgdoc.createElementNS(NS.SVG, "title");
 		layer_title.textContent = newname;
 		a_layer.appendChild(layer_title);
@@ -484,7 +484,7 @@ svgedit.draw.Drawing.prototype.printAllLayersText = function(){
 	}
 	var s = new XMLSerializer();
 	var str = s.serializeToString(this.current_layer);
-	// alert(str);
+	alert(str);
 }
 //<g xmlns="http://www.w3.org/2000/svg" style="pointer-events:all" opacity="1">
 //<title style="pointer-events:inherit">Layer 1</title>
@@ -523,66 +523,43 @@ svgedit.draw.Drawing.prototype.deleteCurrentLayer = function() {
 */
 svgedit.draw.Drawing.prototype.createLayer = function(name) {
 	var svgdoc = this.svgElem_.ownerDocument;
-	var new_layer_svgwrapper = svgdoc.createElementNS(NS.SVG, "svg");
 	var new_layer = svgdoc.createElementNS(NS.SVG, "g");
 	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
 	layer_title.textContent = name;
-	new_layer_svgwrapper.appendChild(new_layer);
 	new_layer.appendChild(layer_title);
-	this.svgElem_.appendChild(new_layer_svgwrapper);
+	this.svgElem_.appendChild(new_layer);
 	this.identifyLayers();
 	return new_layer;
 };
 
-// /**
-//  * inserts a new top-level layer in the drawing given xmlString
-//  * sets the current layer to it.
-//  * @param {string} name - The given name
-//  * @returns {SVGGElement} The SVGGElement of the new layer, which is
-//  * also the current layer of this drawing.
-// */
-// svgedit.draw.Drawing.prototype.insertLayer = function(xmlstr) {
-// 	/* given xmlStr turn into svggelement*/
-// 	var parser = new DOMParser();
-// 	//try turning xmlstr into xml and then 
-// 	console.log("xmlStr = " + xmlstr);
-// 	var doc = parser.parseFromString(xmlstr,"image/svg+xml"); //should return SVGDocument
+/**
+ * inserts a new top-level layer in the drawing given xmlString
+ * sets the current layer to it.
+ * @param {string} name - The given name
+ * @returns {SVGGElement} The SVGGElement of the new layer, which is
+ * also the current layer of this drawing.
+*/
+svgedit.draw.Drawing.prototype.insertLayer = function(xmlstr) {
+	/* given xmlStr turn into svggelement*/
+	var parser = new DOMParser();
+	//try turning xmlstr into xml and then 
+	console.log("xmlStr = " + xmlstr);
+	var doc = parser.parseFromString(xmlstr,"image/svg+xml"); //should return SVGDocument
 
-// 	/* inserts new layer using existing svg Element*/
-// 	while (layernames.indexOf(("Layer " + i)) >= 0) { i++; } //finds next availiable layer name
-// 	/* initialize layer objet */
-// 	var newname = "Layer " + i;
-// 	a_layer = svgdoc.createElementNS(NS.SVG, "g");
-// 	var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-// 	layer_title.textContent = newname;
-// 	a_layer.appendChild(layer_title);
+	console.log("doc = " + doc);
+	/* insert svggelement as new layer*/
 
-// 	/* insert elements from string into it*/
-// 	var j;
-// 	for (j = 0; j < orphans.length; ++j) {
-// 		a_layer.appendChild(orphans[j]);
-// 	}
-// 	this.svgElem_.appendChild(a_layer);
-// 	this.all_layers.push( [newname, a_layer] );
+	// var svgdoc = this.svgElem_.ownerDocument;
+	// var new_layer = svgdoc.createElementNS(NS.SVG, "g");
+	// var layer_title = svgdoc.createElementNS(NS.SVG, "title");
+	// layer_title.textContent = name;
+	// new_layer.appendChild(layer_title);
+	// this.svgElem_.appendChild(new_layer);
+	this.svgElem_.appendChild(doc);
 
-// 	svgedit.utilities.walkTree(a_layer, function(e){e.setAttribute("style", "pointer-events:inherit");});
-// 	this.current_layer = a_layer;
-// 	this.current_layer.setAttribute("style", "pointer-events:all");
-
-
-// 	console.log("doc = " + doc);
-// 	/* insert svggelement as new layer*/
-
-// 	// var svgdoc = this.svgElem_.ownerDocument;
-// 	// var new_layer = svgdoc.createElementNS(NS.SVG, "g");
-// 	// var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-// 	// layer_title.textContent = name;
-// 	// new_layer.appendChild(layer_title);
-// 	// this.svgElem_.appendChild(new_layer);
-// 	this.svgElem_.appendChild(doc);
-// 	this.identifyLayers();
-// 	return new_layer;
-// };
+	this.identifyLayers();
+	return new_layer;
+};
 
 
 
