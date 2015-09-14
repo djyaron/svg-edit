@@ -196,6 +196,18 @@ TODOS
 		/* loads SVGString of canvas */
 		function loadSvgString (str, callback) {
 			console.log("in svg-edtior - at loadSvgString...");
+			console.log("str = "+str);
+				// str = <?xml version="1.0"?>
+				// <svg width="640" height="480" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+				//  <g>
+				//  <title>Layer 1</title>
+				//  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_1" y="143" x="190" stroke-width="0" stroke="#000000" fill="#000000">hello layer 1</text>
+				//  </g>
+				//  <g>
+				//  <title>Layer 2</title>
+				//  <text xml:space="preserve" text-anchor="middle" font-family="serif" font-size="24" id="svg_2" y="283" x="203" stroke-width="0" stroke="#000000" fill="#000000">hello layer 2</text>
+				//  </g>
+				//  </svg>
 			var success = svgCanvas.setSvgString(str) !== false;
 			callback = callback || $.noop;
 			if (success) {
@@ -209,18 +221,13 @@ TODOS
 
 		/* loads SvgLayerString of only one layer */
 		function loadSvgLayerString (str, callback) {
-			console.log("in svg-edtior - at loadSvgString...");
+			console.log("in svg-edtior - at loadLayerStr...");
 			/*turns str into svggelement */
 			/*draw.j -> insert(svggelement as new layer) */
-			var success = svgCanvas.getCurrentDrawing().insertLayer(Utils.toXml(str));
-			callback = callback || $.noop;
-			if (success) {
-				callback(true);
-			} else {
-				$.alert(uiStrings.notification.errorLoadingSVG, function() {
-					callback(false);
-				});
-			}
+					//use import image as guide
+			var xmlStr = Utils.toXml(str);
+			console.log("xmlStr = "+ xmlStr);
+			svgCanvas.getCurrentDrawing().insertLayer(xmlStr);
 		}
 
 
@@ -435,11 +442,6 @@ TODOS
 				if (opts.exportPDF) {
 					customExportPDF = opts.exportPDF;
 					svgCanvas.bind('exportedPDF', customExportPDF); // jsPDF and our RGBColor will be available to the method
-				}
-				if (opts.importLayer) {
-					$('#tool_import_layer > input[type="file"]').remove(); //hides input file button
-					$('#tool_import_layer').show();
-					svgCanvas.importLayer = opts.importLayer;
 				}
 			});
 		};
@@ -3660,11 +3662,15 @@ TODOS
 			};
 
 			var clickSaveLayer = function(){
+				console.log("saveLayer accessed");
 				var saveOpts = {
 					'images': $.pref('img_save'),
 					'round_digits': 6
 				};
-				svgCanvas.saveLayer(saveOpts);
+				var res = svgCanvas.getResolution();
+				canvasWidth = svgedit.units.convertUnit(res.w);
+				canvasHeight = svgedit.units.convertUnit(res.h);
+				svgCanvas.saveLayer(canvasWidth,canvasHeight);
 			}
 
 			var clickExport = function() {
@@ -3728,6 +3734,7 @@ TODOS
 
 			var clickImportLayer = function(){
 				/*open window to input file*/
+				//search "var importLayer" for implementation
 				console.log("clickImportLayer...");
 			};
 
@@ -3784,8 +3791,6 @@ TODOS
 					populateLayers();
 				}
 				layerHasChanged();
-
-
 			};
 
 
@@ -5049,6 +5054,7 @@ TODOS
 					$('#main_menu').hide();
 					var file = (e.type == 'drop') ? e.dataTransfer.files[0] : this.files[0];
 					if (!file) {
+						console.log("importImage accessed: 1");
 						$('#dialog_box').hide();
 						return;
 					}
@@ -5057,13 +5063,15 @@ TODOS
 					}
 					else */
 					if (file.type.indexOf('image') != -1) {
+						console.log("importImage accessed: 2");
 						// Detected an image
 						// svg handling
 						var reader;
 						if (file.type.indexOf('svg') != -1) {
+							console.log("importImage accessed: 3");
 							reader = new FileReader();
 							reader.onloadend = function(e) {
-								console.log("adding in svg files...svgEditor line 5033");
+								console.log("imageLoader = " + e.target.result);
 								svgCanvas.importSvgString(e.target.result, true);
 								svgCanvas.ungroupSelectedElement();
 								svgCanvas.ungroupSelectedElement();
@@ -5075,6 +5083,7 @@ TODOS
 							reader.readAsText(file);
 						}
 						else {
+							console.log("importImage accessed: 4");
 						//bitmap handling
 							reader = new FileReader();
 							reader.onloadend = function(e) {
@@ -5114,13 +5123,14 @@ TODOS
 						}
 					}
 				};
+				var imgImport = $('<input type="file">').change(importImage);
+				$('#tool_import').show().prepend(imgImport);
 
 				workarea[0].addEventListener('dragenter', onDragEnter, false);
 				workarea[0].addEventListener('dragover', onDragOver, false);
 				workarea[0].addEventListener('dragleave', onDragLeave, false);
 				workarea[0].addEventListener('drop', importImage, false);
 
-				/* find where this button is hidden*/
 				var open = $('<input type="file">').change(function() {
 					console.log("open was clicked...svgEditor line 5091");
 					var f = this;
@@ -5141,29 +5151,40 @@ TODOS
 				$('#tool_open').show().prepend(open);
 
 				/*this will make a open file button - start */
-				var importLayer = $('<input type="file">').change(function() {
+				var importLayer = $('<input type="file">').change(function(e) {
+					//parse file content into loadSvgString					
 					console.log("importLayer was clicked...svgEditor line 5172");
 					var f = this;
-					editor.openPrep(function(ok) {
-						if (!ok) {return;}
-						svgCanvas.clear();
-						if (f.files.length === 1) {
-							$.process_cancel(uiStrings.notification.loadingImage);
-							var reader = new FileReader();
-							reader.onloadend = function(e) {
-								console.log("in importLayer");
-								loadSvgLayerString(e.target.result);
-								updateCanvas();
-							};
-							reader.readAsText(f.files[0]);
-						}
-					});
+					// var f = (e.type == 'drop') ? e.dataTransfer.files[0] : this.files[0];
+					// if (f.files.length === 1 && file.type.indexOf('svg') != -1) {
+					if (f.files.length === 1) {
+						//need to create new layer
+						var currentDrawing = svgCanvas.getCurrentDrawing();
+						var i = 1;
+						while (currentDrawing.hasLayer("Layer " + i)) { i++; }
+						currentDrawing.createLayer("Layer " + i);
+						currentDrawing.setCurrentLayer("Layer " + i);
+						
+						console.log("importLayer running");
+						var reader = new FileReader();
+						reader.onloadend = function(e) {
+							//adds elements of file into layer
+							console.log("imageLoader = " + e.target.result);
+							svgCanvas.importSvgString(e.target.result, true);
+							svgCanvas.ungroupSelectedElement();
+							svgCanvas.ungroupSelectedElement();
+							svgCanvas.groupSelectedElements();
+							svgCanvas.alignSelectedElements('m', 'page');
+							svgCanvas.alignSelectedElements('c', 'page');
+							$('#dialog_box').hide();
+							updateCanvas();
+						};
+						reader.readAsText(f.files[0]);
+					}
 				});
 				$('#tool_import_layer').show().prepend(importLayer);
 				/*this will make a open file button - end */
 
-				var imgImport = $('<input type="file">').change(importImage);
-				$('#tool_import').show().prepend(imgImport);
 			}
 
 //			$(function() {

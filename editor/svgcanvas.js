@@ -4367,15 +4367,17 @@ this.save = function(opts) {
 //
 // Returns: 
 // Nothing
-this.saveLayer = function(opts){
+this.saveLayer = function(width,height){
 	// remove the selected outline before serializing
 	clearSelection();
-	// Update save options if provided
-	if (opts) {$.extend(save_options, opts);}
-	save_options.apply = true;
-	
-	// no need for doctype, see http://jwatt.org/svg/authoring/#doctype-declaration
-	var str = this.setCurrentLayerSVGToString();
+	var strWidth = "\"" + width + "\"";
+	var strHeight = "\"" + height + "\"";
+	var svgStartString = 
+		"<svg width="+strWidth+" height="+strHeight+ " xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\">";
+	var svgMidStr = this.setCurrentLayerSVGToString();
+	var svgEndStr = "</svg>";
+	var str = svgStartString + "\n" + svgMidStr + "\n"+ svgEndStr
+	console.log("saveLayer = "+str);
 	call('saved', str);
 }
 

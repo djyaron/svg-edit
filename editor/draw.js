@@ -484,7 +484,6 @@ svgedit.draw.Drawing.prototype.printAllLayersText = function(){
 	}
 	var s = new XMLSerializer();
 	var str = s.serializeToString(this.current_layer);
-	alert(str);
 }
 //<g xmlns="http://www.w3.org/2000/svg" style="pointer-events:all" opacity="1">
 //<title style="pointer-events:inherit">Layer 1</title>
@@ -531,36 +530,6 @@ svgedit.draw.Drawing.prototype.createLayer = function(name) {
 	this.identifyLayers();
 	return new_layer;
 };
-
-/**
- * inserts a new top-level layer in the drawing given xmlString
- * sets the current layer to it.
- * @param {string} name - The given name
- * @returns {SVGGElement} The SVGGElement of the new layer, which is
- * also the current layer of this drawing.
-*/
-svgedit.draw.Drawing.prototype.insertLayer = function(xmlstr) {
-	/* given xmlStr turn into svggelement*/
-	var parser = new DOMParser();
-	//try turning xmlstr into xml and then 
-	console.log("xmlStr = " + xmlstr);
-	var doc = parser.parseFromString(xmlstr,"image/svg+xml"); //should return SVGDocument
-
-	console.log("doc = " + doc);
-	/* insert svggelement as new layer*/
-
-	// var svgdoc = this.svgElem_.ownerDocument;
-	// var new_layer = svgdoc.createElementNS(NS.SVG, "g");
-	// var layer_title = svgdoc.createElementNS(NS.SVG, "title");
-	// layer_title.textContent = name;
-	// new_layer.appendChild(layer_title);
-	// this.svgElem_.appendChild(new_layer);
-	this.svgElem_.appendChild(doc);
-
-	this.identifyLayers();
-	return new_layer;
-};
-
 
 
 /**
