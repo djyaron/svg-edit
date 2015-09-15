@@ -1817,8 +1817,8 @@ TODOS
 				/* stores all the textEditorPreview into layer's text*/
 				var currentDrawing = svgCanvas.getCurrentDrawing();
 				var existingText = $('#texteditor').val();
-				console.log("EXITING LAYER - exiting layer : " + currentDrawing.getCurrentLayerName() + 
-					" saving texteditor content = " + existingText);
+				// console.log("EXITING LAYER - exiting layer : " + currentDrawing.getCurrentLayerName() + 
+				// 	" saving texteditor content = " + existingText);
 				svgCanvas.getCurrentDrawing().setCurrentLayerText(existingText);
 				currentDrawing.printAllLayersText();
 			}
@@ -1830,7 +1830,7 @@ TODOS
 				$('#texteditorpreview').text('');
 				/*loads existing layer's text */
 				var layerText = svgCanvas.getCurrentDrawing().getCurrentLayerText();
-				console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
+				// console.log("ENTERING LAYER - with texteditorpreview content = " + layerText);
 
 				var layerName = svgCanvas.getCurrentDrawing().getCurrentLayerName();
 				// $('#texteditor').val(layerText);
@@ -1840,11 +1840,14 @@ TODOS
 
 			}
 			var updateTextEditor = function(input, preview) {
-				this.updateEditor = function () {
-					preview.innerHTML = markdown.toHTML(input.value);
-				};
-				input.updateTextEditor = this;
-				this.updateEditor();
+				//uses github: evilstreak/markdown-js
+				// this.updateEditor = function () {
+				// 	preview.innerHTML = markdown.toHTML(input.value);
+				// };
+				// input.updateTextEditor = this;
+				// this.updateEditor();
+				preview.innerHTML = markdown.toHTML(input.value);
+				console.log("input.value = "+ input.value);
 			}
 			var getID = function (id) { return document.getElementById(id); };
 			updateTextEditor(getID("texteditor"), getID("texteditorpreview"));
@@ -5164,7 +5167,7 @@ TODOS
 						while (currentDrawing.hasLayer("Layer " + i)) { i++; }
 						currentDrawing.createLayer("Layer " + i);
 						currentDrawing.setCurrentLayer("Layer " + i);
-						
+
 						console.log("importLayer running");
 						var reader = new FileReader();
 						reader.onloadend = function(e) {
